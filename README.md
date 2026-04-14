@@ -83,7 +83,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 ![Mesh Processing and Primitive Segmentation](mesh-processing.png)
 *Reverse engineering workflow: denoised mesh, primitive segmentation (color-coded), and final CAD reconstruction for Cube, Flange, and Bolt*
 
-![Raw STL Mesh](raw-stl-mesh.png)
+![Raw STL Mesh](Raw-stl-mesh.png)
 *Raw STL mesh of the scanned 32mm aluminium cube — starting point of the pipeline*
 
 ### Quantitative Accuracy
