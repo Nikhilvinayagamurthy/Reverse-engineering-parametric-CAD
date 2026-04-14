@@ -1,6 +1,6 @@
-# 🔩 Semi-Automated Reverse Engineering of Mechanical Parts into Parametric CAD Models
+# Semi-Automated Reverse Engineering of Mechanical Parts into Parametric CAD Models
 
-> **Independent Research Project | TU Clausthal | Apr – Oct 2025**
+> **Interdisciplinary Research Project | TU Clausthal | Apr – Oct 2025**
 > Master Program: Intelligent Manufacturing
 > Team: Nikhil Vinayagamurthy, Hithesh Alen D Costa, Neel Deepak Saraf, Tejaswi Armin Manay
 
