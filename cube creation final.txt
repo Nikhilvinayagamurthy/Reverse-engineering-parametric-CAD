@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+import NXOpen
+
+def create_cube_profile(length, width, height):
+    the_session = NXOpen.Session.GetSession()
+    work_part = the_session.Parts.Work
+    display_part = the_session.Parts.Display
+    curves = work_part.Curves
+
+    # --- Plane and Sketch ---
+    origin = NXOpen.Point3d(0.0, 0.0, 0.0)
+    normal = NXOpen.Vector3d(0.0, 0.0, 1.0)  # Sketch on XY plane
+    sketch_plane = work_part.Planes.CreatePlane(origin, normal, NXOpen.SmartObject.UpdateOption.WithinModeling)
+
+    sketch_builder = work_part.Sketches.CreateSketchInPlaceBuilder2(NXOpen.Sketch.Null)
+    sketch_builder.PlaneReference = sketch_plane
+    sketch = sketch_builder.Commit()
+    sketch_builder.Destroy()
+    sketch.Activate(NXOpen.Sketch.ViewReorient.TrueValue)
+
+    # --- Define rectangle corners (2D projection of cube) ---
+    # Let's sketch it on XY plane: Width (Y), Height (Z) — we assume length is depth and ignored in 2D
+    p1 = NXOpen.Point3d(0.0, 0.0, 0.0)
+    p2 = NXOpen.Point3d(width, 0.0, 0.0)
+    p3 = NXOpen.Point3d(width, height, 0.0)
+    p4 = NXOpen.Point3d(0.0, height, 0.0)
+
+    # --- Create rectangle ---
+    lines = [
+        curves.CreateLine(p1, p2),
+        curves.CreateLine(p2, p3),
+        curves.CreateLine(p3, p4),
+        curves.CreateLine(p4, p1)
+    ]
+    for line in lines:
+        sketch.AddGeometry(line, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    sketch.Update()
+    sketch.Deactivate(NXOpen.Sketch.ViewReorient.TrueValue, NXOpen.Sketch.UpdateLevel.Model)
+
+    # --- Print Summary ---
+    lw = the_session.ListingWindow
+    lw.Open()
+    lw.WriteLine("✅ Cube profile created successfully.")
+    lw.WriteLine(f"Width (X): {width:.2f} mm")
+    lw.WriteLine(f"Height (Y): {height:.2f} mm")
+
+# ---------------------- MAIN ----------------------
+if __name__ == "__main__":
+    # Replace these values with your real ones from Open3D output
+    length_mm = 32.00
+    width_mm = 32.00
+    height_mm = 32.00
+
+    create_cube_profile(length_mm, width_mm, height_mm)

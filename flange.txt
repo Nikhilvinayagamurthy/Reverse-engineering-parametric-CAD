@@ -1,0 +1,79 @@
+import NXOpen
+import math
+
+def create_flange_polygon_profile():
+    the_session = NXOpen.Session.GetSession()
+    work_part = the_session.Parts.Work
+    curves = work_part.Curves
+
+    # Parameters
+    flange_radius = 50.0
+    center_hole_radius = 15.0
+    bolt_hole_radius = 7.0
+    bolt_circle_radius = 35.0
+    num_bolt_holes = 4
+
+    num_sides_main = 60   # More sides = smoother circle for main/center
+    num_sides_hole = 36   # Fewer sides for bolt holes
+
+    origin = NXOpen.Point3d(0.0, 0.0, 0.0)
+    normal = NXOpen.Vector3d(0.0, 0.0, 1.0)
+    sketch_plane = work_part.Planes.CreatePlane(origin, normal, NXOpen.SmartObject.UpdateOption.WithinModeling)
+    sketch_builder = work_part.Sketches.CreateSketchInPlaceBuilder2(NXOpen.Sketch.Null)
+    sketch_builder.PlaneReference = sketch_plane
+    sketch = sketch_builder.Commit()
+    sketch_builder.Destroy()
+    sketch.Activate(NXOpen.Sketch.ViewReorient.TrueValue)
+
+    # Main flange (outer circle as polygon)
+    points = []
+    for i in range(num_sides_main):
+        angle = 2 * math.pi * i / num_sides_main
+        x = flange_radius * math.cos(angle)
+        y = flange_radius * math.sin(angle)
+        points.append(NXOpen.Point3d(x, y, 0.0))
+    for i in range(num_sides_main):
+        p1 = points[i]
+        p2 = points[(i + 1) % num_sides_main]
+        line = curves.CreateLine(p1, p2)
+        sketch.AddGeometry(line, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    # Center hole (as polygon)
+    points = []
+    for i in range(num_sides_main):
+        angle = 2 * math.pi * i / num_sides_main
+        x = center_hole_radius * math.cos(angle)
+        y = center_hole_radius * math.sin(angle)
+        points.append(NXOpen.Point3d(x, y, 0.0))
+    for i in range(num_sides_main):
+        p1 = points[i]
+        p2 = points[(i + 1) % num_sides_main]
+        line = curves.CreateLine(p1, p2)
+        sketch.AddGeometry(line, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    # Bolt holes (as polygons)
+    for j in range(num_bolt_holes):
+        angle_offset = 2 * math.pi * j / num_bolt_holes
+        cx = bolt_circle_radius * math.cos(angle_offset)
+        cy = bolt_circle_radius * math.sin(angle_offset)
+        points = []
+        for i in range(num_sides_hole):
+            angle = 2 * math.pi * i / num_sides_hole
+            x = cx + bolt_hole_radius * math.cos(angle)
+            y = cy + bolt_hole_radius * math.sin(angle)
+            points.append(NXOpen.Point3d(x, y, 0.0))
+        for i in range(num_sides_hole):
+            p1 = points[i]
+            p2 = points[(i + 1) % num_sides_hole]
+            line = curves.CreateLine(p1, p2)
+            sketch.AddGeometry(line, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    sketch.Update()
+    sketch.Deactivate(NXOpen.Sketch.ViewReorient.TrueValue, NXOpen.Sketch.UpdateLevel.Model)
+
+    lw = the_session.ListingWindow
+    lw.Open()
+    lw.WriteLine("✅ Flange 2D profile (all polygons) created successfully.")
+
+if __name__ == "__main__":
+    create_flange_polygon_profile()

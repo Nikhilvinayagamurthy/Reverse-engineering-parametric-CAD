@@ -1,0 +1,95 @@
+import NXOpen
+
+def create_m10_bolt_2d_profile():
+    the_session = NXOpen.Session.GetSession()
+    work_part = the_session.Parts.Work
+    display_part = the_session.Parts.Display
+    curves = work_part.Curves
+
+    # Parameters (in mm)
+    thread_dia = 10.0
+    core_dia = 8.16
+    head_af = 17.0
+    head_height = 6.4
+    clearance_dia = 11.0
+    thread_length = 30.0
+    shank_length = 20.0
+    total_length = thread_length + shank_length
+    z_base = 0.0
+
+    # Create sketch plane
+    origin = NXOpen.Point3d(0.0, 0.0, 0.0)
+    normal = NXOpen.Vector3d(0.0, 0.0, 1.0)
+    sketch_plane = work_part.Planes.CreatePlane(origin, normal, NXOpen.SmartObject.UpdateOption.WithinModeling)
+
+    # Create and commit sketch
+    sketch_builder = work_part.Sketches.CreateSketchInPlaceBuilder2(NXOpen.Sketch.Null)
+    sketch_builder.PlaneReference = sketch_plane
+    sketch = sketch_builder.Commit()
+    sketch_builder.Destroy()
+
+    sketch.Activate(NXOpen.Sketch.ViewReorient.TrueValue)
+
+    # Create bolt profile (2D side view - half section)
+    # Start from bottom (thread end) and draw clockwise
+    x0 = 0.0
+    x_thread_root = core_dia / 2
+    x_shank = thread_dia / 2
+    x_head = head_af / 2
+
+    y0 = z_base
+    y_thread_top = y0 + thread_length
+    y_shank_top = y_thread_top + shank_length
+    y_head_top = y_shank_top + head_height
+
+    # Thread section
+    p1 = NXOpen.Point3d(x0, y0, 0.0)
+    p2 = NXOpen.Point3d(x_thread_root, y0, 0.0)
+    p3 = NXOpen.Point3d(x_thread_root, y_thread_top, 0.0)
+
+    # Shank section
+    p4 = NXOpen.Point3d(x_shank, y_thread_top, 0.0)
+    p5 = NXOpen.Point3d(x_shank, y_shank_top, 0.0)
+
+    # Head section
+    p6 = NXOpen.Point3d(x_head, y_shank_top, 0.0)
+    p7 = NXOpen.Point3d(x_head, y_head_top, 0.0)
+    p8 = NXOpen.Point3d(x0, y_head_top, 0.0)
+
+    # Add lines
+    lines = [
+        curves.CreateLine(p1, p2),  # Bottom radius
+        curves.CreateLine(p2, p3),  # Thread up
+        curves.CreateLine(p3, p4),  # Thread shoulder
+        curves.CreateLine(p4, p5),  # Shank
+        curves.CreateLine(p5, p6),  # Shank to head transition
+        curves.CreateLine(p6, p7),  # Head vertical
+        curves.CreateLine(p7, p8),  # Top horizontal
+        curves.CreateLine(p8, p1)   # Left side
+    ]
+
+    for line in lines:
+        sketch.AddGeometry(line, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    # Add clearance hole circle (offset below the bolt)
+    circle_center = NXOpen.Point3d(0.0, z_base - 10.0, 0.0)
+    clearance_radius = clearance_dia / 2.0
+    clearance_circle = curves.CreateArc(
+        circle_center,
+        NXOpen.Vector3d(0.0, 0.0, 1.0),
+        clearance_radius,
+        0.0,
+        2 * 3.141592653589793
+    )
+    sketch.AddGeometry(clearance_circle, NXOpen.Sketch.InferConstraintsOption.InferNoConstraints)
+
+    sketch.Update()
+    sketch.Deactivate(NXOpen.Sketch.ViewReorient.TrueValue, NXOpen.Sketch.UpdateLevel.Model)
+
+    # Done
+    lw = the_session.ListingWindow
+    lw.Open()
+    lw.WriteLine("✅ M10 bolt 2D profile created successfully.")
+
+if __name__ == "__main__":
+    create_m10_bolt_2d_profile()
