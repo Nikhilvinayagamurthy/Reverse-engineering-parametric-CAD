@@ -70,7 +70,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 ### NX CAD Reconstruction Scripts
 - `cube creation final.txt` — NX Open API script for cube reconstruction
 - `flange.txt` — NX Open API script for flange reconstruction
-- `m10 final.txt` — NX Open API script for bolt reconstruction
+- ![M10 bolt]() — NX Open API script for bolt reconstruction
 
 ---
 
