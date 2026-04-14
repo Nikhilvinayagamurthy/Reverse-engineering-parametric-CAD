@@ -1,7 +1,9 @@
 # Semi-Automated Reverse Engineering of Mechanical Parts into Parametric CAD Models
 
 > **Interdisciplinary Research Project | TU Clausthal | Apr – Oct 2025**
+
 > Master Program: Intelligent Manufacturing
+
 > Team: Nikhil Vinayagamurthy, Hithesh Alen D Costa, Neel Deepak Saraf, Tejaswi Armin Manay
 
 ---
@@ -136,7 +138,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 
 **Technische Universität Clausthal**
 Master Program — Intelligent Manufacturing
-Independent Research Project | Apr – Oct 2025
+Interdisciplinary Research Project | Apr – Oct 2025
 
 ---
 
