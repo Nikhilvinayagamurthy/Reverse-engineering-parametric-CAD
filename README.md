@@ -6,24 +6,24 @@
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
-A semi-automated reverse engineering workflow that converts **3D laser scan data** of simple mechanical parts into fully **editable parametric CAD models** in Siemens NX. The pipeline uses classical geometry techniques — **RANSAC fitting** and **normal-based region-growing** — to extract planar and cylindrical primitives from point clouds, and then reconstructs them automatically via the **NX Open Python API**.
+A semi-automated reverse engineering workflow that converts **3D laser scan data** of simple mechanical parts into fully **editable parametric CAD models** in Siemens NX. The pipeline uses classical geometry techniques **RANSAC fitting** and **normal-based region-growing** to extract planar and cylindrical primitives from point clouds, and then reconstructs them automatically via the **NX Open Python API**.
 
 Applied to three representative parts (cube, flange, bolt), the method achieves:
-- ✅ Dimensional errors **below 0.5 mm**
-- ✅ Over **70% of modeling steps fully automated**
-- ✅ No machine learning training data required
+-  Dimensional errors **below 0.5 mm**
+-  Over **70% of modeling steps fully automated**
+-  No machine learning training data required
 
 ---
 
-## 🎯 Research Question
+## Research Question
 
 > *To what extent can planar and cylindrical primitives extracted from 3D laser scans via RANSAC fitting and normal-based region-growing be reconstructed in Siemens NX as fully parametric CAD models with dimensional error under 0.5 mm, and which stages still require manual intervention?*
 
 ---
 
-## 🔧 Six-Stage Pipeline
+## Six-Stage Pipeline
 
 ```
 Scan Acquisition → Outlier Removal & ICP Alignment → RANSAC Plane & Cylinder Fitting
@@ -41,7 +41,7 @@ Scan Acquisition → Outlier Removal & ICP Alignment → RANSAC Plane & Cylinder
 
 ---
 
-## 💻 Code
+## Code
 
 ### Multi-Plane Detection (`Multi-plane Detection.py`)
 Detects multiple planar surfaces from an STL file using **RANSAC segmentation** via Open3D. Each detected plane is assigned a random color for visualization. Outputs plane equations, dimensions, and point counts.
@@ -74,7 +74,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 
 ---
 
-## 🖥️ Results
+## Results
 
 ### Workflow Visualization
 
@@ -85,6 +85,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 *Reverse engineering workflow: denoised mesh, primitive segmentation (color-coded), and final CAD reconstruction for Cube, Flange, and Bolt*
 
 ![Raw STL Mesh](Raw-stl-mesh.png)
+
 *Raw STL mesh of the scanned 32mm aluminium cube — starting point of the pipeline*
 
 ### Quantitative Accuracy
@@ -102,23 +103,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 
 ---
 
-## 🗂️ Files
-
-| File | Description |
-|---|---|
-| `Multi-plane Detection.py` | RANSAC multi-plane detection from STL |
-| `flange 2.py` | Flange geometry extraction (RANSAC + DBSCAN) |
-| `using ransac (dimension and pointcloud.py` | Dimension extraction from point clouds |
-| `csv file creation.py` | CSV output for extracted parameters |
-| `cube creation final.txt` | NX Open API script — cube CAD reconstruction |
-| `flange.txt` | NX Open API script — flange CAD reconstruction |
-| `m10 final.txt` | NX Open API script — bolt CAD reconstruction |
-| `3_4_flange_1.stl` | STL mesh of scanned flange component |
-| `IRP_1B-1_Final_Report_Submission.pdf` | Full research paper (6 pages) |
-
----
-
-## 📐 Key Algorithms
+## Key Algorithms
 
 ### RANSAC Parameters Used
 | Parameter | Plane Fitting | Cylinder Fitting |
@@ -135,12 +120,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 
 ---
 
-## 🛠️ Tools & Skills
-
-![Python](https://img.shields.io/badge/Python-Open3D%20%7C%20NumPy%20%7C%20sklearn-3776AB?style=flat-square&logo=python)
-![Siemens NX](https://img.shields.io/badge/Siemens_NX-CAD%20%26%20NX%20Open%20API-003087?style=flat-square)
-![MeshLab](https://img.shields.io/badge/MeshLab-Point%20Cloud%20Processing-orange?style=flat-square)
-![Reverse Engineering](https://img.shields.io/badge/Reverse_Engineering-RANSAC%20%7C%20ICP-green?style=flat-square)
+## Tools & Skills
 
 - Python (Open3D, NumPy, scikit-image, scikit-learn, matplotlib)
 - RANSAC plane & cylinder fitting
