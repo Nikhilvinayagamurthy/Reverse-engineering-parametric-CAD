@@ -134,7 +134,7 @@ Extracts dimensional parameters from point clouds for downstream CAD scripting.
 
 ---
 
-## 🏫 Affiliation
+## Affiliation
 
 **Technische Universität Clausthal**
 Master Program — Intelligent Manufacturing
