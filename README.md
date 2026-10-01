@@ -2,7 +2,7 @@
 
 **6-stage Python pipeline that turns 3D laser scan point clouds of mechanical parts into editable, parametric Siemens NX models, using Open3D RANSAC, region growing and the NX Open API, without any machine learning training data.**
 
-![Workflow](mesh-processing.png)
+![Workflow](Mesh-processing.png)
 *Denoised mesh, color-coded primitives and final parametric CAD model for the cube, flange and bolt.*
 
 | | |
