@@ -1,145 +1,103 @@
-# Semi-Automated Reverse Engineering of Mechanical Parts into Parametric CAD Models
+# Semi-Automated Reverse Engineering and Parametric CAD Reconstruction
 
-> **Interdisciplinary Research Project | TU Clausthal | Apr – Oct 2025**
+**6-stage Python pipeline that turns 3D laser scan point clouds of mechanical parts into editable, parametric Siemens NX models, using Open3D RANSAC, region growing and the NX Open API, without any machine learning training data.**
 
-> Master Program: Intelligent Manufacturing
+![Workflow](images/mesh_processing.png)
+*Denoised mesh, color-coded primitives and final parametric CAD model for the cube, flange and bolt.*
 
-> Team: Nikhil Vinayagamurthy, Hithesh Alen D Costa, Neel Deepak Saraf, Tejaswi Armin Manay
-
----
-
-## Project Overview
-
-A semi-automated reverse engineering workflow that converts **3D laser scan data** of simple mechanical parts into fully **editable parametric CAD models** in Siemens NX. The pipeline uses classical geometry techniques **RANSAC fitting** and **normal-based region-growing** to extract planar and cylindrical primitives from point clouds, and then reconstructs them automatically via the **NX Open Python API**.
-
-Applied to three representative parts (cube, flange, bolt), the method achieves:
--  Dimensional errors **below 0.5 mm**
--  Over **70% of modeling steps fully automated**
--  No machine learning training data required
+| | |
+|---|---|
+| **Course** | Interdisciplinary Research Project, Institut für Maschinenwesen, TU Clausthal |
+| **Period** | Apr 2025 - Jul 2025, final presentation on 16 July 2025 |
+| **Team** | Nikhil Vinayagamurthy, Hithesh Alen D Costa, Neel Deepak Saraf, Tejaswi Armin Manay |
+| **My role** | First author of the project paper |
 
 ---
 
-## Research Question
+## Problem
 
-> *To what extent can planar and cylindrical primitives extracted from 3D laser scans via RANSAC fitting and normal-based region-growing be reconstructed in Siemens NX as fully parametric CAD models with dimensional error under 0.5 mm, and which stages still require manual intervention?*
+Reclaiming and remanufacturing used parts needs CAD models, but a laser scan only gives a mesh or point cloud, which is not editable. Tracing a scan into CAD by hand is slow and error-prone. Learning-based tools such as Point2CAD need large annotated datasets and still output non-parametric meshes.
 
----
+**Research question:** Can planar and cylindrical primitives from 3D laser scans, found with RANSAC and normal-based region growing, be rebuilt in Siemens NX as fully parametric models with a dimensional error under 0.5 mm, and which steps still need manual input?
 
-## Six-Stage Pipeline
+![ARC diagram](images/arc_diagram.png)
 
-```
-Scan Acquisition → Outlier Removal & ICP Alignment → RANSAC Plane & Cylinder Fitting
-       → Region-Growing Segmentation → Parameter Computation → NX Reconstruction
-```
+## Test parts
 
-| Stage | Tool | Description |
+| Part | Geometry | What it tests |
 |---|---|---|
-| Scan Acquisition | Creaform HandySCAN 3D | High-fidelity point clouds (~0.05 mm spacing) |
-| Outlier Removal & ICP Alignment | MeshLab v2020.12 | Noise filtering and multi-view merging |
-| RANSAC Plane & Cylinder Fitting | Open3D v0.12 | Geometric primitive extraction |
-| Region-Growing Segmentation | Open3D v0.12 | Boundary refinement of detected primitives |
-| Parameter Computation | Python | Normal/axis/radius extraction for CAD input |
-| NX Reconstruction | Siemens NX 12 + NX Open API | Fully scripted parametric CAD generation |
+| Cube | 32 x 32 x 32 mm, aluminium | Orthogonal plane fitting |
+| Flange | 50 mm outer radius, 15 mm bore radius, four 7 mm bolt holes, 10 mm thick | Planes and cylinders together |
+| Bolt | M10 Allen bolt, 60 mm shank, 16 mm head | Sequential cylinder and plane fitting, thread limits |
 
----
+## Method
 
-## Code
+1. **Scan acquisition** with a Creaform HandySCAN 3D, about 0.05 mm point spacing.
+2. **Outlier removal and ICP alignment** in MeshLab.
+3. **RANSAC fitting** of planes and cylinders in Open3D: 1000 iterations, 0.2 mm radius tolerance for cylinders.
+4. **Normal-based region growing** to refine primitive boundaries: 3° normal deviation, curvature below 0.01, at least 500 points per cluster.
+5. **Parameter computation** in Python: normals, offsets, axes and radii.
+6. **Reconstruction in Siemens NX 12** with NX Open Python scripts: datum planes and axes, constrained sketches, extrudes, revolves and Boolean operations.
 
-### Multi-Plane Detection (`Multi-plane Detection.py`)
-Detects multiple planar surfaces from an STL file using **RANSAC segmentation** via Open3D. Each detected plane is assigned a random color for visualization. Outputs plane equations, dimensions, and point counts.
+A 2D alternative was also tested first: measuring the bolt from a smartphone photo with OpenCV. It was fast but had no depth information, so the 3D laser scan was used for the final pipeline.
 
-```python
-# RANSAC plane detection with Open3D
-plane_model, inliers = remaining_cloud.segment_plane(
-    distance_threshold=0.01, ransac_n=3, num_iterations=1000
-)
-```
-
-### Flange Feature Detection (`flange 2.py`)
-Extracts all flange geometry from an STL file — outer radius, center bore, bolt hole positions and radii — using **RANSAC circle fitting** and **DBSCAN clustering**.
-
-```python
-# RANSAC circle fitting for outer flange boundary
-model_robust, inliers = ransac(
-    points, CircleModel, min_samples=30,
-    residual_threshold=1.0, max_trials=1000
-)
-```
-
-### RANSAC Dimension Extraction (`using ransac (dimension and pointcloud.py`)
-Extracts dimensional parameters from point clouds for downstream CAD scripting.
-
-### NX CAD Reconstruction Scripts
-- `cube creation final.txt` — NX Open API script for cube reconstruction
-- `flange.txt` — NX Open API script for flange reconstruction
-- `m10 final.txt`— NX Open API script for bolt reconstruction
-
----
+![Raw scan](images/raw_stl_cube.png)
+*Raw STL mesh of the scanned aluminium cube.*
 
 ## Results
 
-### Workflow Visualization
+All three parts were reconstructed **within 0.5 mm of vernier caliper measurements** as editable NX models.
 
-**Raw STL Mesh → Denoised Mesh → Segmented Primitives → Final CAD Model**
+| Part | Dimensional error | Orientation error | Pipeline stages automated |
+|---|---|---|---|
+| Cube | 0.20 mm | 0.30° | 80% |
+| Flange | 0.50 mm | 0.45° | 75% |
+| Bolt | 0.25 mm | 0.40° | 70% |
 
-![Mesh Processing and Primitive Segmentation](Mesh-processing.png)
-![Mesh Processing and Primitive Segmentation](Mesh-processing-1.png)
-*Reverse engineering workflow: denoised mesh, primitive segmentation (color-coded), and final CAD reconstruction for Cube, Flange, and Bolt*
+The automation share counts how many of the six stages ran without any manual input. The remaining manual steps were seed point selection for region growing and the definition of occluded faces. The bolt needed the most manual work, because threads and occluded surfaces cannot be detected automatically yet.
 
-![Raw STL Mesh](Raw-stl-mesh.png)
+| Segmented primitives, bolt | Final NX model, flange |
+|---|---|
+| ![Segmented bolt](images/segmented_bolt.png) | ![NX flange](images/nx_flange_model.png) |
 
-*Raw STL mesh of the scanned 32mm aluminium cube — starting point of the pipeline*
+### Next steps
+- Automatic symmetry detection to fill occluded faces
+- Multi-view scan fusion
+- Parametric thread extraction
+- Cones and freeform surfaces
 
-### Quantitative Accuracy
+## Repository structure
 
-| Part | Dimensional Error (mm) | % Automated |
-|---|---|---|
-| **Cube** (32×32×32 mm aluminium) | 0.20 | 80% |
-| **Flange** (50mm outer radius, 4 bolt holes) | 0.50 | 75% |
-| **Bolt** (M10 Allen, 60mm shank) | 0.25 | 70% |
+```
+src/detect_planes_ransac.py         multi-plane detection with Open3D RANSAC
+src/detect_flange_features.py       outer radius, bore and bolt holes with RANSAC and DBSCAN
+src/extract_dimensions_ransac.py    dimensions from the point cloud
+src/export_parameters_csv.py        writes parameters to CSV for the NX scripts
+nx_journals/cube.py                 NX Open reconstruction of the cube
+nx_journals/flange.py               NX Open reconstruction of the flange
+nx_journals/bolt_m10.py             NX Open reconstruction of the bolt
+data/flange_scan.stl                example scan
+docs/IRP_final_report.pdf           project paper
+images/
+```
 
-### Manual Intervention Analysis
-- **7 seed-point selections** and **6 occluded-face definitions** recorded across all parts
-- Approximately **12 minutes** of total manual input
-- Main bottleneck: thread geometry and occluded surfaces on the bolt
+## How to run
 
----
+```bash
+git clone https://github.com/Nikhilvinayagamurthy/Reverse-engineering-parametric-CAD.git
+cd Reverse-engineering-parametric-CAD
+pip install open3d numpy scikit-image scikit-learn matplotlib
+python src/detect_planes_ransac.py
+python src/detect_flange_features.py
+python src/export_parameters_csv.py
+```
 
-## Key Algorithms
+Set the STL path at the top of each script before running. Then open Siemens NX, choose Tools, Journal, Play, and run the matching script from `nx_journals/` to build the parametric part.
 
-### RANSAC Parameters Used
-| Parameter | Plane Fitting | Cylinder Fitting |
-|---|---|---|
-| Distance threshold | 0.5 mm | — |
-| Radius tolerance | — | 0.2 mm |
-| Iterations | 1000 | 1000 |
-| Min inlier ratio | 5% | — |
+## Tools
+Python, Open3D, NumPy, scikit-image, scikit-learn, MeshLab, Creaform HandySCAN 3D, Siemens NX 12, NX Open API
 
-### Region-Growing Parameters
-- Normal deviation threshold: **3°**
-- Curvature threshold: **0.01**
-- Minimum cluster size: **500 points**
-
----
-
-## Tools & Skills
-
-- Python (Open3D, NumPy, scikit-image, scikit-learn, matplotlib)
-- RANSAC plane & cylinder fitting
-- Normal-based region-growing segmentation
-- Siemens NX 12 + NX Open Python API
-- MeshLab (ICP alignment, outlier removal)
-- 3D laser scanning (Creaform HandySCAN)
-- Parametric CAD modelling
-
----
-
-## Affiliation
-
-**Technische Universität Clausthal**
-Master Program — Intelligent Manufacturing
-Interdisciplinary Research Project | Apr – Oct 2025
+Full paper: [docs/IRP_final_report.pdf](docs/IRP_final_report.pdf)
 
 ---
-
-*Full research paper available in `IRP_1B-1_Final_Report_Submission.pdf`*
+Technische Universität Clausthal | MSc Intelligent Manufacturing
