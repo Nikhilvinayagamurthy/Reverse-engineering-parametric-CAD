@@ -2,7 +2,7 @@
 
 **6-stage Python pipeline that turns 3D laser scan point clouds of mechanical parts into editable, parametric Siemens NX models, using Open3D RANSAC, region growing and the NX Open API, without any machine learning training data.**
 
-![Workflow](images/mesh_processing.png)
+![Workflow](mesh_processing.png)
 *Denoised mesh, color-coded primitives and final parametric CAD model for the cube, flange and bolt.*
 
 | | |
@@ -41,7 +41,7 @@ Reclaiming and remanufacturing used parts needs CAD models, but a laser scan onl
 
 A 2D alternative was also tested first: measuring the bolt from a smartphone photo with OpenCV. It was fast but had no depth information, so the 3D laser scan was used for the final pipeline.
 
-![Raw scan](images/raw_stl_cube.png)
+![Raw scan](Raw-stl-mesh.png)
 *Raw STL mesh of the scanned aluminium cube.*
 
 ## Results
