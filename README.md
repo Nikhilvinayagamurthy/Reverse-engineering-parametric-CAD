@@ -97,7 +97,7 @@ Set the STL path at the top of each script before running. Then open Siemens NX,
 ## Tools
 Python, Open3D, NumPy, scikit-image, scikit-learn, MeshLab, Creaform HandySCAN 3D, Siemens NX 12, NX Open API
 
-Full paper: [docs/IRP_final_report.pdf](docs/IRP_final_report.pdf)
+Full paper: [docs/IRP_final_report.pdf](Final_Report.pdf)
 
 ---
 Technische Universität Clausthal | MSc Intelligent Manufacturing
