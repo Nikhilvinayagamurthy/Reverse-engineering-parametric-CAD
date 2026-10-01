@@ -20,7 +20,7 @@ Reclaiming and remanufacturing used parts needs CAD models, but a laser scan onl
 
 **Research question:** Can planar and cylindrical primitives from 3D laser scans, found with RANSAC and normal-based region growing, be rebuilt in Siemens NX as fully parametric models with a dimensional error under 0.5 mm, and which steps still need manual input?
 
-![ARC diagram](images/arc_diagram.png)
+![ARC diagram](arc_diagram.png)
 
 ## Test parts
 
@@ -58,7 +58,7 @@ The automation share counts how many of the six stages ran without any manual in
 
 | Segmented primitives, bolt | Final NX model, flange |
 |---|---|
-| ![Segmented bolt](images/segmented_bolt.png) | ![NX flange](images/nx_flange_model.png) |
+| ![Segmented bolt](Mesh-processing-1.png) | ![NX flange](nx_flange_model.png) |
 
 ### Next steps
 - Automatic symmetry detection to fill occluded faces
